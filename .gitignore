@@ -9,3 +9,4 @@ export_presets.cfg
 auth.gd
 *.import
 EngineTests/
+Releases/
