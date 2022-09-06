@@ -1,3 +1,5 @@
+## WARNING: If you want to use the Godot 4 version go to the `godot4-implementation` branch
+
 # GameJolt API plugin for Godot Engine.
 ![Screenshot](https://github.com/deakcor/godot-gamejolt-api-demo/blob/main/example/fond.png)
 ## About
