@@ -116,6 +116,12 @@ func add_score(score, sort, table_id=null):
 			{score = score, sort = sort, username = username_cache, user_token = token_cache, table_id = table_id})
 		pass
 	
+func get_user_score(user, table_id=null):
+	if username_cache!=null:
+		_call_gj_api("/scores/",
+			{username = username_cache, user_token = token_cache, table_id = table_id})
+		pass
+
 func add_guest_score(score, sort, guest, table_id=null):
 	_call_gj_api('/scores/add/',
 		{score = score, sort = sort, guest = guest, table_id = table_id})
