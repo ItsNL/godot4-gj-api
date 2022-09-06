@@ -10,6 +10,7 @@ const BASE_GAMEJOLT_API_URL:String = 'https://api.gamejolt.com/api/game/v1_2'
 @export var game_id : String = ""
 @export var auto_batch : bool = true #Merge queued requests in one batch
 @export var verbose : bool = false
+@export var debug  : bool = false
 
 signal gamejolt_request_completed(type,message)
 
@@ -216,7 +217,7 @@ func batch_request(requests:Array,parallel:bool=true,break_on_error:bool=false):
 # private
 
 func _ready():
-	connect("request_completed", self, '_on_HTTPRequest_request_completed')
+	request_completed.connect(_on_HTTPRequest_request_completed)
 
 func _call_gj_api(type:String, parameters:Dictionary, sub_types:Array = []):
 	var request_error := OK
@@ -224,7 +225,7 @@ func _call_gj_api(type:String, parameters:Dictionary, sub_types:Array = []):
 		request_error = ERR_BUSY
 		if auto_batch and type != '/batch/':
 			var url:String = _compose_url(type, parameters, true)
-			if queue.empty() or queue.back().type != '/batch/' or queue.back().sub_types.size()>=50:
+			if queue.size() == 0 or queue.back().type != '/batch/' or queue.back().sub_types.size()>=50:
 				queue.push_back(Request.new('/batch/',{requests = [url]},[type]))
 			else:
 				queue.back().parameters.requests.push_back(url)
@@ -242,9 +243,9 @@ func _call_gj_api(type:String, parameters:Dictionary, sub_types:Array = []):
 
 func _compose_param(parameter,key:String):
 	parameter = str(parameter)
-	if parameter.empty():
+	if parameter.length() == 0:
 		return ""
-	return '&' + key + '=' + parameter.percent_encode()
+	return '&' + key + '=' + parameter.uri_encode()
 	
 func _compose_url(url_path:String, parameters:Dictionary={}, sub_request := false)->String:
 	var final_url:String = ("" if sub_request else BASE_GAMEJOLT_API_URL) + url_path
@@ -269,6 +270,8 @@ func _compose_url(url_path:String, parameters:Dictionary={}, sub_request := fals
 	pass
 	
 func _on_HTTPRequest_request_completed(result, response_code, headers, response_body):
+	if debug:
+		print(result, response_code, headers, response_body)
 	
 	if result != OK:
 		emit_signal('gamejolt_request_completed',current_request.type,{"success":false})
@@ -281,11 +284,20 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, response_
 		
 		if verbose:
 			_verbose(body)
-			
-		var json_result = JSON.parse(body)
+		var json = JSON.new()
+		var json_result = json.parse(body)
+		print("\n--JSON RESULT--\n")
+		print(json_result)
+		print("\n--JSON RESULT END--\n")
+		
 		var response:Dictionary = {}
-		if json_result.error == OK:
-			response = json_result.result.get('response',{})
+		if json_result == OK:
+			var data_received = json.get_data()
+			if typeof(data_received) == TYPE_ARRAY:
+				print(data_received) # Prints array
+			else:
+				print("Unexpected data: ", data_received)
+			response = data_received.get('response', {})#
 		response['success'] = response.get('success',false)
 
 		emit_signal('gamejolt_request_completed',current_request.type,response)
@@ -297,7 +309,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, response_
 		
 	busy = false
 	
-	if !queue.empty():
+	if !queue.size() == 0:
 		var request_queued :Request = queue.pop_front()
 		_call_gj_api(request_queued.type, request_queued.parameters, request_queued.sub_types)
 
