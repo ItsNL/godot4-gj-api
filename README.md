@@ -1,4 +1,4 @@
-# GameJolt API plugin for Godot Engine.
+# GameJolt API plugin for Godot Engine **4**.
 ![Screenshot](https://github.com/deakcor/godot-gamejolt-api-demo/blob/main/example/fond.png)
 ## About
 **Features**
@@ -8,27 +8,30 @@
 * Allow to verbose mode to see direct communication
 * URLs are percent encoded
 * Use HTTPS communication with GameJolt API
-* For Godot 3+
+* For Godot 4+
 * One common singal on end of request
 * Many point of checking response
 
 **Installing**
 1. Download the repository
-2. Create the "addons/gamejolt" folder in the root (res://) of your project
-3. Copy files from repositiory to that folder (By downloading, git clone or submodule if your project use git)
+2. Create the "addons/gjapi_plugin" folder in the root (res://) of your project
+3. Copy files from a release or from `src` repositiory to that folder (By downloading, git clone or submodule if your project use git)
 4. In the project settings, head to the "Plugins" tab and activate the plugin by changing its state from "Inactive" to "Active"
 5. Yay, you've installed the plugin!
-6. You can check [a demo of this plugin](https://github.com/deakcor/godot-gamejolt-api-demo)
+6. ~You can check [a demo of this plugin](https://github.com/deakcor/godot-gamejolt-api-demo)~
 
 **How to use it**
-1. Put the plugin as a Node in your project. For a project which need it in several place, could be intersting to add it in child of an autoload.
-2. Call the function from the plugin. It'll initiate the request.
+1. Add GameJoltAPI Node in your project. For a project which need it in several place, could be intersting to add it in child of an autoload.
+2. Call the function `init("privatekey", "gamekey")` from the plugin. It'll initiate the request.
 3. When response is received plugin will send the signal gamejolt_request_completed with the type of the request and a message
-4. You may connect to this signal or yield. Now, you can also write all your request directly, there is a queue to process all the requests.
+4. You may connect to this signal or await. Now, you can also write all your request directly, there is a queue to process all the requests.
 5. Get the response from the plugin - it's the parsed JSON to godot directory, which is the "response" part from GameJoltAPI.
 
 
 # Methods description
+
+`init(private_gamekey : String, game_token : String)`
+This is the first step. If this doesn't happen, none of the following methods will work.
 
 ## Authentication and users
 ### Authenticate user
